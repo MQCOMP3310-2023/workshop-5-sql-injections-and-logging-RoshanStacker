@@ -3,6 +3,7 @@ package workshop05code;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 //Included for the logging exercise
@@ -41,12 +42,14 @@ public class App {
             System.out.println("Wordle created and connected.");
         } else {
             System.out.println("Not able to connect. Sorry!");
+            logger.log(Level.SEVERE, "Not able to connect. Sorry!");
             return;
         }
         if (wordleDatabaseConnection.createWordleTables()) {
             System.out.println("Wordle structures in place.");
         } else {
             System.out.println("Not able to launch. Sorry!");
+            logger.log(Level.SEVERE, "Not able to launch. Sorry!");
             return;
         }
 
@@ -56,14 +59,14 @@ public class App {
             String line;
             int i = 1;
             while ((line = br.readLine()) != null) {
-                System.out.println(line);
+                logger.log(Level.FINER, line);
                 wordleDatabaseConnection.addValidWord(i, line);
                 i++;
             }
 
         } catch (IOException e) {
             System.out.println("Not able to load . Sorry!");
-            System.out.println(e.getMessage());
+            logger.log(Level.SEVERE, e.getMessage());
             return;
         }
 
@@ -73,12 +76,17 @@ public class App {
             System.out.print("Enter a 4 letter word for a guess or q to quit: ");
             String guess = scanner.nextLine();
             
-
+            
             while (!guess.equals("q")) {
                 // check if it is a valid 4 letter word or q
-                while (! guess.matches("[a-z]{4}") || guess.equals("q")) {
+                while (! guess.matches("[a-z]{4}") && ! guess.equals("q")) {
                     System.out.println("Sorry. That is not an acceptable input.\n");
+                    logger.log(Level.WARNING, "Invalid input: " + guess);
+                    System.out.print("Enter a 4 letter word for a guess or q to quit: ");
                     guess = scanner.nextLine();
+                }
+                if (guess.equals("q")) {
+                    break;
                 }
 
                 System.out.println("You've guessed '" + guess+"'.");
@@ -93,7 +101,7 @@ public class App {
                 guess = scanner.nextLine();
             }
         } catch (NoSuchElementException | IllegalStateException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, Arrays.toString(e.getStackTrace()));
         }
 
     }
